@@ -175,4 +175,6 @@ app.on('will-quit', () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    // Don't qui
+    // Don't quit, keep in tray
+  }
+})
