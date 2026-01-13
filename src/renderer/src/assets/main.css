@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Cake Vintage Theme */
+  --berry-brown: #66281f;
+  --rosewood-red: #994d47;
+  --almond-cream: #9d8361;
+  --soft-taupe: #bfb9a3;
+  --sweet-beige: #e6e5d5;
+  --cream-white: #f8f7f2;
+}
+
+* {
+  font-family: 'Quicksand', sans-serif;
+}
+
+.title-font {
+  font-family: 'Playfair Display', serif;
+}
+
+body {
+  background-color: var(--cream-white);
+  color: var(--berry-brown);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sweet-beige);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--soft-taupe);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--almond-cream);
+}
+
+kbd {
+  background: var(--sweet-beige);
+  color: var(--berry-brown);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--soft-taupe);
+  font-family: 'Quicksand', sans-serif;
+}
