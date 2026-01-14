@@ -1,11 +1,41 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, Type, Square, Circle, PenTool, Save, MousePointer2, Trash2, Undo2, Redo2, Plus, Minus } from 'lucide-react'
+import { ArrowLeft, Type, Square, Circle, PenTool, Save, MousePointer2, Trash2, Undo2, Redo2, Plus, Minus, Check } from 'lucide-react'
+
+// Toast notification component for non-intrusive feedback
+const Toast = ({ message, isVisible, onClose }) => {
+    useEffect(() => {
+        if (isVisible) {
+            const timer = setTimeout(onClose, 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [isVisible, onClose])
+
+    if (!isVisible) return null
+
+    return (
+        <div
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl animate-slide-up"
+            style={{
+                background: 'linear-gradient(135deg, #66281f, #994d47)',
+                color: '#f8f7f2'
+            }}
+            role="status"
+            aria-live="polite"
+        >
+            <div className="p-1.5 rounded-full" style={{ background: 'rgba(248, 247, 242, 0.2)' }}>
+                <Check size={16} strokeWidth={3} />
+            </div>
+            <span className="font-semibold">{message}</span>
+        </div>
+    )
+}
 
 const ToolButton = ({ active, onClick, children, title }) => (
     <button
         onClick={onClick}
         title={title}
-        className="p-3 rounded-xl transition-all duration-200"
+        aria-label={title}
+        className="min-w-[44px] min-h-[44px] p-3 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#66281f]"
         style={{
             background: active ? 'linear-gradient(135deg, #994d47, #66281f)' : '#e6e5d5',
             color: active ? '#f8f7f2' : '#66281f',
@@ -26,6 +56,8 @@ const Editor = ({ imageSrc, onClose }) => {
     const [texts, setTexts] = useState([])
     const [selectedTextId, setSelectedTextId] = useState(null)
     const [isDrawing, setIsDrawing] = useState(false)
+    const [toastMessage, setToastMessage] = useState('')
+    const [showToast, setShowToast] = useState(false)
     const [startPos, setStartPos] = useState({ x: 0, y: 0 })
 
     const [history, setHistory] = useState([])
@@ -218,7 +250,8 @@ const Editor = ({ imageSrc, onClose }) => {
         const dataUrl = tempCanvas.toDataURL('image/png', 1.0)
         const success = await window.electron.ipcRenderer.invoke('SAVE_IMAGE', dataUrl)
         if (success) {
-            alert('Saved successfully!')
+            setToastMessage('Saved successfully!')
+            setShowToast(true)
         }
     }
 
@@ -235,9 +268,10 @@ const Editor = ({ imageSrc, onClose }) => {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onClose}
-                        className="p-3 rounded-xl transition-all hover:scale-105"
+                        className="min-w-[44px] min-h-[44px] p-3 rounded-xl transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         style={{ background: 'rgba(248, 247, 242, 0.2)' }}
                         title="Close"
+                        aria-label="Close editor and go back"
                     >
                         <ArrowLeft size={20} className="text-white" />
                     </button>
@@ -246,9 +280,10 @@ const Editor = ({ imageSrc, onClose }) => {
                     <button
                         onClick={handleUndo}
                         disabled={historyIndex <= 0}
-                        className="p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50"
+                        className="min-w-[44px] min-h-[44px] p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         style={{ background: 'rgba(248, 247, 242, 0.2)' }}
                         title="Undo (Ctrl+Z)"
+                        aria-label="Undo last action"
                     >
                         <Undo2 size={20} className="text-white" />
                     </button>
@@ -257,9 +292,10 @@ const Editor = ({ imageSrc, onClose }) => {
                     <button
                         onClick={handleRedo}
                         disabled={historyIndex >= history.length - 1}
-                        className="p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50"
+                        className="min-w-[44px] min-h-[44px] p-3 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         style={{ background: 'rgba(248, 247, 242, 0.2)' }}
                         title="Redo (Ctrl+Y)"
+                        aria-label="Redo last action"
                     >
                         <Redo2 size={20} className="text-white" />
                     </button>
@@ -308,15 +344,16 @@ const Editor = ({ imageSrc, onClose }) => {
 
                 <button
                     onClick={handleSave}
-                    className="px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105"
+                    className="min-h-[44px] px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#66281f]"
                     style={{
                         background: '#f8f7f2',
                         color: '#66281f',
                         boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
                     }}
+                    aria-label="Save image"
                 >
-                    <Save size={18} /> Save
-                </button>
+                    <Save size={18} />
+                    Save </button>
             </div>
 
             {/* Text Properties Panel */}
@@ -330,8 +367,9 @@ const Editor = ({ imageSrc, onClose }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => updateSelectedText({ fontSize: Math.max(12, selectedText.fontSize - 4) })}
-                            className="p-2 rounded-lg"
+                            className="min-w-[44px] min-h-[44px] p-2 rounded-lg flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66281f]"
                             style={{ background: '#bfb9a3', color: '#66281f' }}
+                            aria-label="Decrease font size"
                         >
                             <Minus size={14} />
                         </button>
@@ -340,8 +378,9 @@ const Editor = ({ imageSrc, onClose }) => {
                         </span>
                         <button
                             onClick={() => updateSelectedText({ fontSize: Math.min(120, selectedText.fontSize + 4) })}
-                            className="p-2 rounded-lg"
+                            className="min-w-[44px] min-h-[44px] p-2 rounded-lg flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66281f]"
                             style={{ background: '#bfb9a3', color: '#66281f' }}
+                            aria-label="Increase font size"
                         >
                             <Plus size={14} />
                         </button>
@@ -378,8 +417,9 @@ const Editor = ({ imageSrc, onClose }) => {
                             setTexts(texts.filter(t => t.id !== selectedTextId))
                             setSelectedTextId(null)
                         }}
-                        className="p-2 rounded-lg ml-auto"
+                        className="min-w-[44px] min-h-[44px] p-2 rounded-lg ml-auto flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         style={{ background: '#994d47', color: '#f8f7f2' }}
+                        aria-label="Delete selected text"
                     >
                         <Trash2 size={16} />
                     </button>
@@ -464,6 +504,13 @@ const Editor = ({ imageSrc, onClose }) => {
                     ))}
                 </div>
             </div>
+
+            {/* Toast notification */}
+            <Toast
+                message={toastMessage}
+                isVisible={showToast}
+                onClose={() => setShowToast(false)}
+            />
         </div>
     )
 }

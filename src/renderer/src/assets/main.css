@@ -55,3 +55,30 @@ kbd {
   border: 1px solid var(--soft-taupe);
   font-family: 'Quicksand', sans-serif;
 }
+
+/* Toast notification animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Focus visible utilities for accessibility */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--rosewood-red);
+  outline-offset: 2px;
+}

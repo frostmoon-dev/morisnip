@@ -206,13 +206,13 @@ function App() {
           <img
             src={cakeIcon}
             alt="Morisnip"
-            className="w-48 h-48 md:w-56 md:h-56 mx-auto object-contain drop-shadow-2xl"
+            className="w-32 h-32 md:w-40 md:h-40 mx-auto object-contain drop-shadow-2xl"
           />
         </div>
 
         <h1
           className="text-5xl md:text-7xl font-bold mb-2 tracking-tight"
-          style={{ color: '#f8f7f2', fontFamily: 'Quicksand, sans-serif' }}
+          style={{ color: '#f8f7f2', fontFamily: 'Cinzel, serif' }}
         >
           Morisnip
         </h1>

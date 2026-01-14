@@ -1,11 +1,20 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const Cropper = ({ fullScreenImage, onCrop, onCancel }) => {
     const [isDrawing, setIsDrawing] = useState(false)
     const [startPos, setStartPos] = useState({ x: 0, y: 0 })
     const [endPos, setEndPos] = useState({ x: 0, y: 0 })
+    const [showTooSmallMessage, setShowTooSmallMessage] = useState(false)
     const containerRef = useRef(null)
     const imgRef = useRef(null)
+
+    // Auto-dismiss the "too small" message after 2 seconds
+    useEffect(() => {
+        if (showTooSmallMessage) {
+            const timer = setTimeout(() => setShowTooSmallMessage(false), 2000)
+            return () => clearTimeout(timer)
+        }
+    }, [showTooSmallMessage])
 
     const handleMouseDown = (e) => {
         const rect = containerRef.current.getBoundingClientRect()
@@ -30,8 +39,10 @@ const Cropper = ({ fullScreenImage, onCrop, onCancel }) => {
         const h = Math.abs(endPos.y - startPos.y)
 
         if (w < 10 || h < 10) {
+            setShowTooSmallMessage(true)
             return
         }
+        setShowTooSmallMessage(false)
 
         const img = new Image()
         img.src = fullScreenImage
@@ -149,6 +160,21 @@ const Cropper = ({ fullScreenImage, onCrop, onCancel }) => {
             >
                 Drag to select area <span style={{ color: '#9d8361' }}>|</span> Press <kbd className="mx-1 px-2 py-0.5 rounded text-xs font-semibold" style={{ background: '#e6e5d5', border: '1px solid #bfb9a3' }}>Esc</kbd> to cancel
             </div>
+
+            {/* Too Small Selection Feedback */}
+            {showTooSmallMessage && (
+                <div
+                    className="absolute top-20 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl text-sm pointer-events-none animate-slide-up"
+                    style={{
+                        background: 'linear-gradient(135deg, #994d47, #66281f)',
+                        color: '#f8f7f2',
+                        boxShadow: '0 4px 20px rgba(102, 40, 31, 0.3)'
+                    }}
+                    role="alert"
+                >
+                    Selection too small – drag a larger area
+                </div>
+            )}
 
             {/* Cancel Button */}
             <button
